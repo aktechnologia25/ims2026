@@ -11,7 +11,7 @@ function App() {
     <BrowserRouter>
       <div className="app">
         <nav className="navbar">
-          <h1>IMS - Aircon Inventory Management</h1>
+          <h1>Senfrost Warehouse Inventory System</h1>
           <ul>
             <li><a href="/">Dashboard</a></li>
             <li><a href="/products">Products</a></li>
