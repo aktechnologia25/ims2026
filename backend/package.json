@@ -4,7 +4,7 @@
   "description": "Backend API for IMS",
   "main": "dist/index.js",
 "scripts": {
-  "dev": "NODE_NO_WARNINGS=1 nodemon --exec ts-node src/index.ts",
+  "dev": "NODE_NO_WARNINGS=1 && ts-node src/index.ts",
   "build": "tsc",
   "start": "node dist/index.js"
  },
