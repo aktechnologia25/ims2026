@@ -5,6 +5,7 @@ import { initializeDatabase } from './models/database';
 import productRoutes from './routes/products';
 import stockRoutes from './routes/stock';
 import ordersRoutes from './routes/orders';
+import 'dotenv/config';
 
 dotenv.config();
 
