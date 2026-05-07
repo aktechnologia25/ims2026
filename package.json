@@ -13,6 +13,8 @@
     "test": "npm test -w backend && npm test -w frontend"
   },
   "devDependencies": {
+    "@types/morgan": "^1.9.10",
+    "@types/uuid": "^10.0.0",
     "concurrently": "^8.2.0"
   }
 }
