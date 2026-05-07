@@ -31,8 +31,8 @@ export default function Dashboard() {
           <p className="stat-value">{stats.totalProducts}</p>
         </div>
         <div className="stat-card">
-          <h3>Total Inventory Value</h3>
-          <p className="stat-value">${stats.totalValue.toFixed(2)}</p>
+          <h3>Total Inventory Value (PHP)</h3>
+          <p className="stat-value">₱{stats.totalValue.toFixed(2)}</p>
         </div>
       </div>
     </div>

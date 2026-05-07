@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from './database';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Product {
   id: string;
@@ -13,68 +14,62 @@ export interface Product {
 
 export class ProductModel {
   static async getAll(): Promise<Product[]> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.all('SELECT * FROM products ORDER BY name', (err, rows: Product[]) => {
-        if (err) reject(err);
-        else resolve(rows || []);
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
   }
 
   static async getById(id: string): Promise<Product | null> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.get('SELECT * FROM products WHERE id = ?', [id], (err, row: Product) => {
-        if (err) reject(err);
-        else resolve(row || null);
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || null;
   }
 
   static async create(data: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> {
     const id = uuidv4();
     const now = new Date().toISOString();
-    
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.run(
-        'INSERT INTO products (id, name, category, description, unit_price, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [id, data.name, data.category, data.description || '', data.unit_price, now, now],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ ...data, id, created_at: now, updated_at: now });
-        }
-      );
-    });
+    const supabase: SupabaseClient = getDatabase();
+
+    const { data: result, error } = await supabase
+      .from('products')
+      .insert([{ id, ...data, created_at: now, updated_at: now }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result;
   }
 
   static async update(id: string, data: Partial<Product>): Promise<void> {
     const now = new Date().toISOString();
-    
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      const fields = Object.keys(data).filter(k => k !== 'id' && k !== 'created_at').map(k => `${k} = ?`).join(', ');
-      const values = Object.values(data).filter((_, i) => !['id', 'created_at'].includes(Object.keys(data)[i]));
-      
-      db.run(
-        `UPDATE products SET ${fields}, updated_at = ? WHERE id = ?`,
-        [...values, now, id],
-        (err) => {
-          if (err) reject(err);
-          else resolve();
-        }
-      );
-    });
+    const supabase: SupabaseClient = getDatabase();
+
+    const { error } = await supabase
+      .from('products')
+      .update({ ...data, updated_at: now })
+      .eq('id', id);
+
+    if (error) throw error;
   }
 
   static async delete(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.run('DELETE FROM products WHERE id = ?', [id], (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 }

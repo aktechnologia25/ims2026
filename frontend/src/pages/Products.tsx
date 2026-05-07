@@ -82,7 +82,7 @@ export default function Products() {
             <th>Name</th>
             <th>Category</th>
             <th>Unit Price</th>
-            <th>Actions</th>
+            <th>Unit Price (PHP)</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +90,7 @@ export default function Products() {
             <tr key={product.id}>
               <td>{product.name}</td>
               <td>{product.category}</td>
-              <td>${product.unit_price.toFixed(2)}</td>
+              <td>₱{product.unit_price.toFixed(2)}</td>
               <td>
                 <button onClick={() => handleDelete(product.id)}>Delete</button>
               </td>

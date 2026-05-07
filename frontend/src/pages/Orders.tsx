@@ -55,7 +55,7 @@ export default function Orders() {
             <tr key={order.id}>
               <td>{order.id.substring(0, 8)}</td>
               <td>{new Date(order.order_date).toLocaleDateString()}</td>
-              <td>${order.total_amount.toFixed(2)}</td>
+              <td>₱{order.total_amount.toFixed(2)}</td>
               <td>{order.status}</td>
               <td>
                 <select                  title="Order Status"                  value={order.status}

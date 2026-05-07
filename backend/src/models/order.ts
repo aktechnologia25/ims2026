@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from './database';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Order {
   id: string;
@@ -19,75 +20,75 @@ export interface OrderItem {
 
 export class OrderModel {
   static async getAll(): Promise<Order[]> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.all('SELECT * FROM orders ORDER BY order_date DESC', (err, rows: Order[]) => {
-        if (err) reject(err);
-        else resolve(rows || []);
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('order_date', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   }
 
   static async getById(id: string): Promise<Order | null> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.get('SELECT * FROM orders WHERE id = ?', [id], (err, row: Order) => {
-        if (err) reject(err);
-        else resolve(row || null);
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || null;
   }
 
   static async create(data: Omit<Order, 'id' | 'order_date'>): Promise<Order> {
     const id = uuidv4();
     const now = new Date().toISOString();
-    
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.run(
-        'INSERT INTO orders (id, order_date, status, total_amount, notes) VALUES (?, ?, ?, ?, ?)',
-        [id, now, data.status, data.total_amount, data.notes || ''],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ ...data, id, order_date: now });
-        }
-      );
-    });
+    const supabase: SupabaseClient = getDatabase();
+
+    const { data: order, error } = await supabase
+      .from('orders')
+      .insert([{ id, order_date: now, status: data.status, total_amount: data.total_amount, notes: data.notes || '' }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return order;
   }
 
   static async updateStatus(id: string, status: Order['status']): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.run('UPDATE orders SET status = ? WHERE id = ?', [status, id], (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) throw error;
   }
 
   static async getItems(order_id: string): Promise<OrderItem[]> {
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.all('SELECT * FROM order_items WHERE order_id = ?', [order_id], (err, rows: OrderItem[]) => {
-        if (err) reject(err);
-        else resolve(rows || []);
-      });
-    });
+    const supabase: SupabaseClient = getDatabase();
+    const { data, error } = await supabase
+      .from('order_items')
+      .select('*')
+      .eq('order_id', order_id);
+
+    if (error) throw error;
+    return data || [];
   }
 
   static async addItem(item: Omit<OrderItem, 'id'>): Promise<OrderItem> {
     const id = uuidv4();
-    
-    return new Promise((resolve, reject) => {
-      const db = getDatabase();
-      db.run(
-        'INSERT INTO order_items (id, order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?, ?)',
-        [id, item.order_id, item.product_id, item.quantity, item.unit_price],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ ...item, id });
-        }
-      );
-    });
+    const supabase: SupabaseClient = getDatabase();
+
+    const { data: orderItem, error } = await supabase
+      .from('order_items')
+      .insert([{ id, order_id: item.order_id, product_id: item.product_id, quantity: item.quantity, unit_price: item.unit_price }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return orderItem;
   }
 }
