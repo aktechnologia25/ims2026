@@ -16,6 +16,29 @@ const app: Express = express();
 
 let databaseInitPromise: Promise<void> | null = null;
 
+function isAllowedOrigin(origin: string): boolean {
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL,
+  ].filter((value): value is string => Boolean(value));
+
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  try {
+    const { hostname, protocol } = new URL(origin);
+    if ((protocol === 'https:' || protocol === 'http:') && hostname.endsWith('.vercel.app')) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+
+  return false;
+}
+
 export function ensureDatabaseInitialized(): Promise<void> {
   if (!databaseInitPromise) {
     databaseInitPromise = initializeDatabase().catch((error) => {
@@ -32,13 +55,7 @@ app.use(morgan('combined'));
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        process.env.FRONTEND_URL,
-      ].filter(Boolean);
-
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || isAllowedOrigin(origin)) {
         callback(null, true);
         return;
       }
