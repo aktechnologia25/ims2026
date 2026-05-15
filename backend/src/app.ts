@@ -51,6 +51,8 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/api/auth', authRoutes);
+
 app.use('/api', async (_req: Request, _res: Response, next: NextFunction) => {
   try {
     await ensureDatabaseInitialized();
@@ -60,7 +62,6 @@ app.use('/api', async (_req: Request, _res: Response, next: NextFunction) => {
   }
 });
 
-app.use('/api/auth', authRoutes);
 app.use('/api', requireAuth);
 app.use('/api/products', productRoutes);
 app.use('/api/stock', stockRoutes);
