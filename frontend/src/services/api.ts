@@ -11,6 +11,7 @@ function getApiBaseUrl(): string {
 
 const api: AxiosInstance = axios.create({
   baseURL: getApiBaseUrl(),
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -54,6 +55,12 @@ export const orderService = {
   getById: (id: string) => api.get(`/orders/${id}`),
   create: (data: any) => api.post('/orders', data),
   updateStatus: (id: string, status: string) => api.patch(`/orders/${id}/status`, { status }),
+}
+
+export const authService = {
+  login: (username: string, password: string) => api.post('/auth/login', { username, password }),
+  logout: () => api.post('/auth/logout'),
+  me: () => api.get('/auth/me'),
 }
 
 export default api

@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './models/database';
+import { requireAuth } from './middleware/auth';
+import authRoutes from './routes/auth';
 import productRoutes from './routes/products';
 import stockRoutes from './routes/stock';
 import ordersRoutes from './routes/orders';
@@ -27,7 +29,25 @@ export function ensureDatabaseInitialized(): Promise<void> {
 
 app.use(helmet());
 app.use(morgan('combined'));
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000'] }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        process.env.FRONTEND_URL,
+      ].filter(Boolean);
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,6 +60,8 @@ app.use('/api', async (_req: Request, _res: Response, next: NextFunction) => {
   }
 });
 
+app.use('/api/auth', authRoutes);
+app.use('/api', requireAuth);
 app.use('/api/products', productRoutes);
 app.use('/api/stock', stockRoutes);
 app.use('/api/orders', ordersRoutes);
