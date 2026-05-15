@@ -162,7 +162,7 @@ export default function Orders() {
                 required
               />
 
-              <span>\u20b1{(item.quantity * item.unit_price).toFixed(2)}</span>
+              <span>₱{(item.quantity * item.unit_price).toFixed(2)}</span>
 
               {index > 0 && (
                 <button
@@ -190,7 +190,7 @@ export default function Orders() {
 
           <div className="order-summary">
             <strong>
-              Total: \u20b1
+              Total: ₱
               {orderItems.reduce((sum, item) => sum + item.quantity * item.unit_price, 0).toFixed(2)}
             </strong>
           </div>
@@ -218,7 +218,7 @@ export default function Orders() {
               <td>
                 <button onClick={() => loadOrderDetails(order.id)}>View Items</button>
               </td>
-              <td>\u20b1{order.total_amount.toFixed(2)}</td>
+              <td>₱{order.total_amount.toFixed(2)}</td>
               <td>{order.status}</td>
               <td>
                 <select
@@ -254,8 +254,8 @@ export default function Orders() {
                   <tr key={item.id}>
                     <td>{getProductName(item.product_id)}</td>
                     <td>{item.quantity}</td>
-                    <td>\u20b1{item.unit_price.toFixed(2)}</td>
-                    <td>\u20b1{(item.quantity * item.unit_price).toFixed(2)}</td>
+                    <td>₱{item.unit_price.toFixed(2)}</td>
+                    <td>₱{(item.quantity * item.unit_price).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
