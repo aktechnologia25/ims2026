@@ -59,10 +59,6 @@ export default function Orders() {
     return products.find((p) => p.id === productId)?.unit_price || 0
   }
 
-  function getProductStock(productId: string): number {
-    return stocks.find((s) => s.product_id === productId)?.quantity || 0
-  }
-
   function updateOrderItem(index: number, field: string, value: any) {
     const updated = [...orderItems]
     if (field === 'product_id') {
@@ -80,16 +76,6 @@ export default function Orders() {
     const validItems = orderItems.filter((item) => item.product_id && item.quantity > 0)
     if (validItems.length === 0) {
       return alert('Please add at least one item with quantity > 0')
-    }
-
-    // Check stock availability
-    for (const item of validItems) {
-      const available = getProductStock(item.product_id)
-      if (item.quantity > available) {
-        return alert(
-          `Insufficient stock for ${getProductName(item.product_id)}. Available: ${available}, Requested: ${item.quantity}`
-        )
-      }
     }
 
     try {
@@ -120,7 +106,7 @@ export default function Orders() {
 
   return (
     <div className="orders">
-      <h2>Orders Management</h2>
+      <h2>Orders</h2>
 
       <button onClick={() => setShowCreateForm(!showCreateForm)}>
         {showCreateForm ? 'Cancel' : 'Create Order'}
@@ -132,22 +118,17 @@ export default function Orders() {
 
           {orderItems.map((item, index) => (
             <div key={index} className="order-item-row">
-              <label htmlFor={`product-${index}`}>Product</label>
               <select
-                id={`product-${index}`}
                 value={item.product_id}
                 onChange={(e) => updateOrderItem(index, 'product_id', e.target.value)}
                 required
               >
                 <option value="">Select product</option>
-                {products.map((p) => {
-                  const availStock = getProductStock(p.id)
-                  return (
-                    <option key={p.id} value={p.id}>
-                      {p.name} - ₱{p.unit_price.toFixed(2)} (Stock: {availStock})
-                    </option>
-                  )
-                })}
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - ₱{p.unit_price.toFixed(2)}
+                  </option>
+                ))}
               </select>
 
               <input

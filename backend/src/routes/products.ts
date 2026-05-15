@@ -35,27 +35,39 @@ router.post('/', async (req: Request, res: Response) => {
     if (!name || !category || unit_price === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    
-    const product = await ProductModel.create({
+
+    const normalize = (value: any) => {
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length ? trimmed : undefined;
+      }
+      return value === '' ? undefined : value;
+    };
+
+    const payload: any = {
       name,
       category,
-      description,
-      sku: req.body.sku,
-      serial_number: req.body.serial_number,
-      supplier: req.body.supplier,
-      purchased_by: req.body.purchased_by,
-      purchase_date: req.body.purchase_date,
-      manufacturing_date: req.body.manufacturing_date,
-      warranty_provider: req.body.warranty_provider,
-      warranty_expiry: req.body.warranty_expiry,
-      warranty_terms: req.body.warranty_terms,
-      unit_price
-    });
+      unit_price,
+    };
+
+    if (normalize(description) !== undefined) payload.description = normalize(description);
+    if (normalize(req.body.sku) !== undefined) payload.sku = normalize(req.body.sku);
+    if (normalize(req.body.serial_number) !== undefined) payload.serial_number = normalize(req.body.serial_number);
+    if (normalize(req.body.supplier) !== undefined) payload.supplier = normalize(req.body.supplier);
+    if (normalize(req.body.purchased_by) !== undefined) payload.purchased_by = normalize(req.body.purchased_by);
+    if (normalize(req.body.purchase_date) !== undefined) payload.purchase_date = normalize(req.body.purchase_date);
+    if (normalize(req.body.manufacturing_date) !== undefined) payload.manufacturing_date = normalize(req.body.manufacturing_date);
+    if (normalize(req.body.warranty_provider) !== undefined) payload.warranty_provider = normalize(req.body.warranty_provider);
+    if (normalize(req.body.warranty_expiry) !== undefined) payload.warranty_expiry = normalize(req.body.warranty_expiry);
+    if (normalize(req.body.warranty_terms) !== undefined) payload.warranty_terms = normalize(req.body.warranty_terms);
+
+    const product = await ProductModel.create(payload);
 
     await StockModel.initializeStock(product.id);
 
     res.status(201).json(product);
   } catch (error: any) {
+    console.error('Create product error:', error);
     res.status(500).json({ error: error.message });
   }
 });
