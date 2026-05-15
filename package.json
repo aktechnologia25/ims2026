@@ -7,10 +7,10 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
-    "build": "npm run build -w backend && npm run build -w frontend",
-    "start": "npm start -w backend",
-    "test": "npm test -w backend && npm test -w frontend"
+    "dev": "cross-env NODE_NO_WARNINGS=1 nodemon --exec ts-node src/index.ts",
+    "build": "tsc --noEmit",  
+    "start": "node dist/index.js",
+    "prebuild": "npm install @types/morgan @types/uuid @types/helmet"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.10",
