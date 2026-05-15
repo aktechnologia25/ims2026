@@ -7,6 +7,9 @@ export interface Stock {
   product_id: string;
   quantity: number;
   warehouse_location?: string;
+  batch_number?: string;
+  received_date?: string;
+  reorder_threshold?: number;
   last_updated: string;
 }
 
@@ -23,6 +26,17 @@ export class StockModel {
     return data || null;
   }
 
+  static async getAll(): Promise<Stock[]> {
+    const supabase: SupabaseClient = getDatabase();
+    const { data, error } = await supabase
+      .from('stock')
+      .select('*')
+      .order('last_updated', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
   static async getAllLowStock(threshold: number = 10): Promise<Stock[]> {
     const supabase: SupabaseClient = getDatabase();
     const { data, error } = await supabase
@@ -35,21 +49,35 @@ export class StockModel {
     return data || [];
   }
 
-  static async updateQuantity(product_id: string, quantity_change: number): Promise<void> {
+  static async updateQuantity(
+    product_id: string,
+    quantity_change: number,
+    updates: Partial<Stock> = {}
+  ): Promise<void> {
     const supabase: SupabaseClient = getDatabase();
     
     const { data: stock, error: selectError } = await supabase
       .from('stock')
-      .select('quantity')
+      .select('*')
       .eq('product_id', product_id)
       .single();
 
     if (selectError) throw selectError;
     
     const newQuantity = (stock?.quantity || 0) + quantity_change;
+    const payload: Partial<Stock> = {
+      quantity: newQuantity,
+      last_updated: new Date().toISOString(),
+    };
+
+    if (updates.warehouse_location !== undefined) payload.warehouse_location = updates.warehouse_location;
+    if (updates.batch_number !== undefined) payload.batch_number = updates.batch_number;
+    if (updates.received_date !== undefined) payload.received_date = updates.received_date;
+    if (updates.reorder_threshold !== undefined) payload.reorder_threshold = updates.reorder_threshold;
+
     const { error } = await supabase
       .from('stock')
-      .update({ quantity: newQuantity, last_updated: new Date().toISOString() })
+      .update(payload)
       .eq('product_id', product_id);
 
     if (error) throw error;

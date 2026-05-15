@@ -1,12 +1,22 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from './database';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { StockModel } from './stock';
 
 export interface Product {
   id: string;
   name: string;
   category: string;
   description?: string;
+  sku?: string;
+  serial_number?: string;
+  supplier?: string;
+  purchased_by?: string;
+  purchase_date?: string;
+  manufacturing_date?: string;
+  warranty_provider?: string;
+  warranty_expiry?: string;
+  warranty_terms?: string;
   unit_price: number;
   created_at: string;
   updated_at: string;

@@ -16,10 +16,19 @@ export const productService = {
 }
 
 export const stockService = {
+  getAll: () => api.get('/stock'),
   getByProduct: (product_id: string) => api.get(`/stock/product/${product_id}`),
   getLowStock: (threshold?: number) => api.get('/stock/low-stock/all', { params: { threshold } }),
-  updateQuantity: (product_id: string, quantity_change: number) =>
-    api.patch(`/stock/update/${product_id}`, { quantity_change }),
+  updateQuantity: (
+    product_id: string,
+    quantity_change: number,
+    updates?: {
+      warehouse_location?: string;
+      batch_number?: string;
+      received_date?: string;
+      reorder_threshold?: number;
+    }
+  ) => api.patch(`/stock/update/${product_id}`, { quantity_change, ...updates }),
 }
 
 export const orderService = {

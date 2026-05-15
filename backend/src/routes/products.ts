@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { ProductModel } from '../models/product';
+import { StockModel } from '../models/stock';
 
 const router = Router();
 
@@ -39,9 +40,20 @@ router.post('/', async (req: Request, res: Response) => {
       name,
       category,
       description,
+      sku: req.body.sku,
+      serial_number: req.body.serial_number,
+      supplier: req.body.supplier,
+      purchased_by: req.body.purchased_by,
+      purchase_date: req.body.purchase_date,
+      manufacturing_date: req.body.manufacturing_date,
+      warranty_provider: req.body.warranty_provider,
+      warranty_expiry: req.body.warranty_expiry,
+      warranty_terms: req.body.warranty_terms,
       unit_price
     });
-    
+
+    await StockModel.initializeStock(product.id);
+
     res.status(201).json(product);
   } catch (error: any) {
     res.status(500).json({ error: error.message });

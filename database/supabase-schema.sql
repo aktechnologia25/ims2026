@@ -7,6 +7,15 @@ CREATE TABLE IF NOT EXISTS products (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   description TEXT,
+  sku TEXT,
+  serial_number TEXT,
+  supplier TEXT,
+  purchased_by TEXT,
+  purchase_date TIMESTAMP WITH TIME ZONE,
+  manufacturing_date TIMESTAMP WITH TIME ZONE,
+  warranty_provider TEXT,
+  warranty_expiry TIMESTAMP WITH TIME ZONE,
+  warranty_terms TEXT,
   unit_price NUMERIC(10, 2) NOT NULL, -- Price in Philippine Peso (₱)
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -18,6 +27,9 @@ CREATE TABLE IF NOT EXISTS stock (
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   quantity INTEGER NOT NULL DEFAULT 0,
   warehouse_location TEXT,
+  batch_number TEXT,
+  received_date TIMESTAMP WITH TIME ZONE,
+  reorder_threshold INTEGER NOT NULL DEFAULT 10,
   last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
