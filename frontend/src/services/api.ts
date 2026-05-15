@@ -1,11 +1,29 @@
 import axios, { AxiosInstance } from 'axios'
 
+function getApiBaseUrl(): string {
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL
+  if (configuredBaseUrl) {
+    return configuredBaseUrl
+  }
+
+  return import.meta.env.PROD ? '/_/backend/api' : '/api'
+}
+
 const api: AxiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
 })
+
+export function asArray<T>(data: unknown, label: string): T[] {
+  if (Array.isArray(data)) {
+    return data
+  }
+
+  console.error(`Expected ${label} response to be an array, received:`, data)
+  return []
+}
 
 export const productService = {
   getAll: () => api.get('/products'),

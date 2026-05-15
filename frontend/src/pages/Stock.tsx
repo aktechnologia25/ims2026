@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { stockService, productService } from '../services/api'
+import { asArray, stockService, productService } from '../services/api'
 import { Stock, Product } from '../types'
 
 export default function StockPage() {
@@ -25,12 +25,14 @@ export default function StockPage() {
       setLoading(true)
       const productsRes = await productService.getAll()
       const stockRes = lowStockOnly ? await stockService.getLowStock(10) : await stockService.getAll()
+      const loadedProducts = asArray<Product>(productsRes.data, 'products')
+      const loadedStocks = asArray<Stock>(stockRes.data, 'stock')
 
-      setProducts(productsRes.data)
-      setStocks(stockRes.data)
+      setProducts(loadedProducts)
+      setStocks(loadedStocks)
 
-      if (!stockAdjustment.product_id && productsRes.data.length > 0) {
-        setStockAdjustment((prev) => ({ ...prev, product_id: productsRes.data[0].id }))
+      if (!stockAdjustment.product_id && loadedProducts.length > 0) {
+        setStockAdjustment((prev) => ({ ...prev, product_id: loadedProducts[0].id }))
       }
     } catch (error) {
       console.error('Failed to load data:', error)

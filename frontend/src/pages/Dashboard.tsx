@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { productService, stockService, orderService } from '../services/api'
+import { asArray, productService, stockService, orderService } from '../services/api'
 import { Product, Stock, Order } from '../types'
 
 export default function Dashboard() {
@@ -25,9 +25,9 @@ export default function Dashboard() {
         stockService.getAll(),
         orderService.getAll(),
       ])
-      const prods: Product[] = productsRes.data
-      const stks: Stock[] = stocksRes.data
-      const ords: Order[] = ordersRes.data
+      const prods = asArray<Product>(productsRes.data, 'products')
+      const stks = asArray<Stock>(stocksRes.data, 'stock')
+      const ords = asArray<Order>(ordersRes.data, 'orders')
 
       setProducts(prods)
       setStocks(stks)

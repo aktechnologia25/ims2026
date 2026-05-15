@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { productService } from '../services/api'
+import { asArray, productService } from '../services/api'
 import { Product } from '../types'
 
 export default function Products() {
@@ -31,7 +31,7 @@ export default function Products() {
     try {
       setLoading(true)
       const response = await productService.getAll()
-      setProducts(response.data)
+      setProducts(asArray<Product>(response.data, 'products'))
     } catch (error) {
       console.error('Failed to load products:', error)
     } finally {

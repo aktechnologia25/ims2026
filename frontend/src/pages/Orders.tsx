@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { orderService, productService, stockService } from '../services/api'
+import { asArray, orderService, productService, stockService } from '../services/api'
 import { Order, Product, Stock } from '../types'
 
 interface OrderItemForm {
@@ -32,9 +32,9 @@ export default function Orders() {
         productService.getAll(),
         stockService.getAll(),
       ])
-      setOrders(ordersRes.data)
-      setProducts(productsRes.data)
-      setStocks(stocksRes.data)
+      setOrders(asArray<Order>(ordersRes.data, 'orders'))
+      setProducts(asArray<Product>(productsRes.data, 'products'))
+      setStocks(asArray<Stock>(stocksRes.data, 'stock'))
     } catch (error) {
       console.error('Failed to load data:', error)
     } finally {
@@ -45,7 +45,10 @@ export default function Orders() {
   async function loadOrderDetails(orderId: string) {
     try {
       const response = await orderService.getById(orderId)
-      setSelectedOrder(response.data)
+      setSelectedOrder({
+        ...response.data,
+        items: asArray(response.data?.items, 'order items'),
+      })
     } catch (error) {
       console.error('Failed to load order details:', error)
     }
