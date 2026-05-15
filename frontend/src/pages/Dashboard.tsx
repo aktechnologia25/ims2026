@@ -16,7 +16,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadReport(reportType)
-  }, [reportType])
+  }, [reportType, products, stocks, orders])
 
   async function loadDashboard() {
     try {
@@ -25,9 +25,9 @@ export default function Dashboard() {
         stockService.getAll(),
         orderService.getAll(),
       ])
-      const prods = productsRes.data
-      const stks = stocksRes.data
-      const ords = ordersRes.data
+      const prods: Product[] = productsRes.data
+      const stks: Stock[] = stocksRes.data
+      const ords: Order[] = ordersRes.data
 
       setProducts(prods)
       setStocks(stks)
@@ -74,7 +74,7 @@ export default function Dashboard() {
           break
 
         case 'top-value':
-          const topValueProducts = products
+          const topValueProducts = [...products]
             .sort((a, b) => b.unit_price - a.unit_price)
             .slice(0, 10)
             .map((p) => {
